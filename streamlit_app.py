@@ -177,7 +177,7 @@ if uploaded_file is not None:
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
     img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
     # Tampilkan preview
-    st.image(img, caption='Gambar yang diupload', use_column_width=True, channels='BGR')
+    st.image(img, caption='Gambar yang diupload', use_container_width=True, channels='BGR')
     # Preprocessing
     img_prep = cv2.resize(img, (128,128))
     img_prep = img_prep.astype(np.float32) / 255.0
