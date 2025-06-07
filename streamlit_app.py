@@ -58,8 +58,7 @@ import requests
 
 MODEL_PATH = 'klasifikasi_penyakit_daunnn/models/random_forest_model.pkl'
 MODEL_DIR = os.path.dirname(MODEL_PATH)
-MODEL_GDRIVE_ID = '1TiBzISDtQR4_vuyPr7hgSA0Iwh3wHnkH'
-MODEL_URL = f'https://drive.google.com/uc?export=download&id={MODEL_GDRIVE_ID}'
+MODEL_URL = 'https://github.com/HilmiNurpadilah/PrakAiTugas8/releases/download/v1.0/random_forest_model.pkl'
 
 if not os.path.exists(MODEL_PATH):
     os.makedirs(MODEL_DIR, exist_ok=True)
