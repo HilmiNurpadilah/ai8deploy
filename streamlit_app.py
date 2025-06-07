@@ -53,21 +53,23 @@ label_mapping = {
     "Tomato_healthy": "Tomat - Sehat",
 }
 
-# Download model otomatis jika belum ada
+# Download model otomatis jika belum ada (streaming, hemat memori)
+import requests
+
 MODEL_PATH = 'klasifikasi_penyakit_daunnn/models/random_forest_model.pkl'
 MODEL_DIR = os.path.dirname(MODEL_PATH)
 MODEL_GDRIVE_ID = '1TiBzISDtQR4_vuyPr7hgSA0Iwh3wHnkH'
+MODEL_URL = f'https://drive.google.com/uc?export=download&id={MODEL_GDRIVE_ID}'
 
 if not os.path.exists(MODEL_PATH):
     os.makedirs(MODEL_DIR, exist_ok=True)
-    try:
-        import gdown
-    except ImportError:
-        subprocess.check_call(['pip', 'install', 'gdown'])
-        import gdown
-    url = f'https://drive.google.com/uc?id={MODEL_GDRIVE_ID}'
-    print(f"Downloading model from {url} ...")
-    gdown.download(url, MODEL_PATH, quiet=False)
+    print(f"Downloading model from {MODEL_URL} ... (streaming mode)")
+    response = requests.get(MODEL_URL, stream=True)
+    response.raise_for_status()
+    with open(MODEL_PATH, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
 
 # Load model
 model = joblib.load(MODEL_PATH)
