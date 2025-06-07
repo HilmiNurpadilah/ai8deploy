@@ -10,6 +10,8 @@ import base64
 import os
 import subprocess
 
+import requests
+
 print("=== STREAMLIT APP STARTED ===")
 # Mapping label Inggris ke Indonesia (edit sesuai kebutuhan)
 label_mapping = {
@@ -62,16 +64,30 @@ MODEL_URL = 'https://github.com/HilmiNurpadilah/PrakAiTugas8/releases/download/v
 
 if not os.path.exists(MODEL_PATH):
     os.makedirs(MODEL_DIR, exist_ok=True)
-    print(f"Downloading model from {MODEL_URL} ... (streaming mode)")
-    response = requests.get(MODEL_URL, stream=True)
-    response.raise_for_status()
-    with open(MODEL_PATH, 'wb') as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
+    with st.spinner('Downloading model...'):
+        response = requests.get(MODEL_URL, stream=True)
+        response.raise_for_status()
+        with open(MODEL_PATH, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+    st.success("Model downloaded!")
 
-# Load model
-model = joblib.load(MODEL_PATH)
+# Cek ukuran file model
+if os.path.exists(MODEL_PATH):
+    st.write(f"Model size: {os.path.getsize(MODEL_PATH)/1024/1024:.2f} MB")
+    if os.path.getsize(MODEL_PATH) < 1000000:
+        st.error("Model file too small, kemungkinan gagal download!")
+else:
+    st.error("Model file not found!")
+
+with st.spinner('Loading model...'):
+    try:
+        model = joblib.load(MODEL_PATH)
+        st.success("Model loaded!")
+    except Exception as e:
+        st.error(f"Gagal load model: {e}")
+        st.stop()
 
 # Sidebar
 st.sidebar.image("https://cdn-icons-png.flaticon.com/512/2909/2909763.png", width=80)
