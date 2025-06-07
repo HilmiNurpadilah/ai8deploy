@@ -1,16 +1,67 @@
 import streamlit as st
 import numpy as np
+import os
+import requests
+import base64
+
+print("=== STREAMLIT APP STARTED ===")
+
+MODEL_PATH = './models/random_forest_model_compressed.pkl'
+MODEL_URL = 'https://github.com/HilmiNurpadilah/ai8deploy/releases/download/v1.0/random_forest_model_compressed.pkl'
+
+# Download model hasil compress jika belum ada
+if not os.path.exists(MODEL_PATH):
+    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+    with st.spinner('Downloading model hasil compress...'):
+        with requests.get(MODEL_URL, stream=True) as r:
+            r.raise_for_status()
+            with open(MODEL_PATH, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=1024*1024):  # 1MB per chunk
+                    if chunk:
+                        f.write(chunk)
+    st.success("Model hasil compress downloaded!")
+
+# Cek ukuran file model
+if os.path.exists(MODEL_PATH):
+    size_mb = os.path.getsize(MODEL_PATH)/1024/1024
+    st.write(f"Model size: {size_mb:.2f} MB")
+    if size_mb < 1:
+        st.error("Model file too small, kemungkinan gagal download!")
+        st.stop()
+else:
+    st.error("Model file not found!")
+    st.stop()
+
+# (Optional) Cek RAM usage sebelum load model
+try:
+    import psutil
+    st.write(f"RAM usage sebelum load: {psutil.virtual_memory().used/1024/1024:.2f} MB")
+except ImportError:
+    pass
+
+# Import library berat SETELAH model didownload
 import joblib
 import cv2
 from skimage.feature import hog
 from skimage.color import rgb2gray
 from skimage.transform import resize
 from PIL import Image
-import base64
-import os
-import requests
 
-print("=== STREAMLIT APP STARTED ===")
+import time
+st.write("Mulai load model...")
+start = time.time()
+try:
+    model = joblib.load(MODEL_PATH)
+    st.success("Model loaded!")
+except Exception as e:
+    st.error(f"Gagal load model: {e}")
+    st.stop()
+st.write(f"Model load time: {time.time()-start:.2f} detik")
+try:
+    st.write(f"RAM usage sesudah load: {psutil.virtual_memory().used/1024/1024:.2f} MB")
+except:
+    pass
+
 # Mapping label Inggris ke Indonesia (edit sesuai kebutuhan)
 label_mapping = {
     "Apple___Apple_scab": "Apel - Kudis Apel",
