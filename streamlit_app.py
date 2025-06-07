@@ -7,6 +7,8 @@ from skimage.color import rgb2gray
 from skimage.transform import resize
 from PIL import Image
 import base64
+import os
+import requests
 
 print("=== STREAMLIT APP STARTED ===")
 # Mapping label Inggris ke Indonesia (edit sesuai kebutuhan)
@@ -50,9 +52,6 @@ label_mapping = {
     "Tomato__Tomato_YellowLeaf__Curl_Virus": "Tomat - Virus Daun Kuning Keriting",
     "Tomato_healthy": "Tomat - Sehat",
 }
-
-import os
-import subprocess
 
 # Download model otomatis jika belum ada
 MODEL_PATH = 'klasifikasi_penyakit_daunnn/models/random_forest_model.pkl'
