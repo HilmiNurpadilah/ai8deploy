@@ -5,3 +5,4 @@ scikit-image
 Pillow
 joblib
 gdown
+scikit-learn
