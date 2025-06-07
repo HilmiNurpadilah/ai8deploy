@@ -6,8 +6,8 @@ import base64
 
 print("=== STREAMLIT APP STARTED ===")
 
-MODEL_PATH = './models/random_forest_model_compressed.pkl'
-MODEL_URL = 'https://github.com/HilmiNurpadilah/ai8deploy/releases/download/v1.0/random_forest_model_compressed.pkl'
+MODEL_PATH = './models/random_forest_model_pruned.pkl'
+MODEL_URL = 'https://github.com/HilmiNurpadilah/ai8deploy/releases/download/v1.0/random_forest_model_pruned.pkl'
 
 # Download model hasil compress jika belum ada
 if not os.path.exists(MODEL_PATH):
@@ -105,26 +105,24 @@ label_mapping = {
 }
 
 # Download model otomatis jika belum ada
-MODEL_PATH = 'klasifikasi_penyakit_daunnn/models/random_forest_model.pkl'
-MODEL_DIR = os.path.dirname(MODEL_PATH)
-MODEL_GDRIVE_ID = '1TiBzISDtQR4_vuyPr7hgSA0Iwh3wHnkH'
-
-if not os.path.exists(MODEL_PATH):
-    os.makedirs(MODEL_DIR, exist_ok=True)
-# Download & load model dari GitHub Release (model hasil compress, path sejajar dengan klasifikasi_deploy)
-MODEL_PATH = './models/random_forest_model_compressed.pkl'
-MODEL_URL = 'https://github.com/HilmiNurpadilah/ai8deploy/releases/download/v1.0/random_forest_model_compressed.pkl'
+# Download & load model dari GitHub Release (model hasil pruning, path sejajar dengan klasifikasi_deploy)
+MODEL_PATH = './models/random_forest_model_pruned.pkl'
+MODEL_URL = 'https://github.com/HilmiNurpadilah/ai8deploy/releases/download/v1.0/random_forest_model_pruned.pkl'
 
 if not os.path.exists(MODEL_PATH):
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
-    with st.spinner('Downloading model hasil compress...'):
-        response = requests.get(MODEL_URL, stream=True)
-        response.raise_for_status()
-        with open(MODEL_PATH, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-    st.success("Model hasil compress downloaded!")
+    try:
+        with st.spinner('Downloading model hasil pruning dari GitHub Release...'):
+            response = requests.get(MODEL_URL, stream=True, timeout=60)
+            response.raise_for_status()
+            with open(MODEL_PATH, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=1024*1024):
+                    if chunk:
+                        f.write(chunk)
+        st.success("Model hasil pruning berhasil di-download!")
+    except Exception as e:
+        st.error(f"Gagal download model dari GitHub Release: {e}")
+        st.stop()
 
 # Cek ukuran file model
 if os.path.exists(MODEL_PATH):
